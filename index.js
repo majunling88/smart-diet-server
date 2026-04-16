@@ -12,7 +12,8 @@ const foodRoute = require('./routes/food');
 const ocrRoute = require('./routes/ocr');
 
 const app = express();
-const PORT = 3000;
+// Railway会自动设置PORT环境变量
+const PORT = process.env.PORT || 3000;
 
 // 中间件
 app.use(cors());
