@@ -1856,6 +1856,629 @@ const NUTRITION_DB = {
   },
 
   // ==================== 零食甜点 ====================
+  // 新增谷薯类样本
+  '藜麦': { 
+    calories: 120, protein: 4.4, carbs: 21.0, fat: 1.9, fiber: 2.8,
+    sodium: 7, cholesterol: 0, vitaminA: 0, vitaminC: 0, calcium: 17, iron: 1.5,
+    category: '谷薯类', glycemicIndex: 53 
+  },
+  '荞麦': { 
+    calories: 343, protein: 9.3, carbs: 71.0, fat: 2.3, fiber: 4.1,
+    sodium: 4, cholesterol: 0, vitaminA: 0, vitaminC: 0, calcium: 18, iron: 2.8,
+    category: '谷薯类', glycemicIndex: 54 
+  },
+  '薏米': { 
+    calories: 357, protein: 12.8, carbs: 71.0, fat: 3.3, fiber: 2.0,
+    sodium: 3, cholesterol: 0, vitaminA: 0, vitaminC: 0, calcium: 42, iron: 3.6,
+    category: '谷薯类', glycemicIndex: 55 
+  },
+  '紫米': { 
+    calories: 346, protein: 8.3, carbs: 72.0, fat: 2.5, fiber: 1.4,
+    sodium: 4, cholesterol: 0, vitaminA: 0, vitaminC: 0, calcium: 13, iron: 3.9,
+    category: '谷薯类', glycemicIndex: 55 
+  },
+  '高粱米': { 
+    calories: 351, protein: 10.4, carbs: 74.0, fat: 3.1, fiber: 1.8,
+    sodium: 4, cholesterol: 0, vitaminA: 0, vitaminC: 0, calcium: 22, iron: 6.3,
+    category: '谷薯类', glycemicIndex: 70 
+  },
+  '青稞': { 
+    calories: 339, protein: 10.2, carbs: 72.0, fat: 1.5, fiber: 1.8,
+    sodium: 8, cholesterol: 0, vitaminA: 0, vitaminC: 0, calcium: 23, iron: 4.0,
+    category: '谷薯类', glycemicIndex: 50 
+  },
+  '魔芋': { 
+    calories: 7, protein: 0.1, carbs: 3.0, fat: 0.1, fiber: 2.2,
+    sodium: 5, cholesterol: 0, vitaminA: 0, vitaminC: 0, calcium: 44, iron: 0.4,
+    category: '谷薯类', glycemicIndex: 17 
+  },
+  '凉粉': { 
+    calories: 37, protein: 0.2, carbs: 9.0, fat: 0.0, fiber: 0.1,
+    sodium: 2, cholesterol: 0, vitaminA: 0, vitaminC: 0, calcium: 5, iron: 0.1,
+    category: '谷薯类', glycemicIndex: 45 
+  },
+  '粉丝': { 
+    calories: 335, protein: 0.2, carbs: 84.0, fat: 0.1, fiber: 0.1,
+    sodium: 5, cholesterol: 0, vitaminA: 0, vitaminC: 0, calcium: 8, iron: 0.3,
+    category: '谷薯类', glycemicIndex: 65 
+  },
+  '粉条': { 
+    calories: 337, protein: 0.5, carbs: 84.0, fat: 0.1, fiber: 0.2,
+    sodium: 6, cholesterol: 0, vitaminA: 0, vitaminC: 0, calcium: 10, iron: 0.4,
+    category: '谷薯类', glycemicIndex: 65 
+  },
+  
+  // 新增蔬菜类样本
+  '秋葵': { 
+    calories: 33, protein: 2.0, carbs: 7.0, fat: 0.1, fiber: 3.2,
+    sodium: 7, cholesterol: 0, vitaminA: 36, vitaminC: 21, calcium: 82, iron: 0.8,
+    category: '蔬菜类' 
+  },
+  '茭白': { 
+    calories: 23, protein: 1.2, carbs: 5.0, fat: 0.2, fiber: 1.9,
+    sodium: 6, cholesterol: 0, vitaminA: 0, vitaminC: 5, calcium: 4, iron: 0.4,
+    category: '蔬菜类' 
+  },
+  '马齿苋': { 
+    calories: 27, protein: 2.3, carbs: 4.0, fat: 0.5, fiber: 0.7,
+    sodium: 45, cholesterol: 0, vitaminA: 372, vitaminC: 23, calcium: 85, iron: 1.5,
+    category: '蔬菜类' 
+  },
+  '荠菜': { 
+    calories: 27, protein: 2.9, carbs: 4.0, fat: 0.4, fiber: 1.7,
+    sodium: 30, cholesterol: 0, vitaminA: 432, vitaminC: 43, calcium: 294, iron: 5.4,
+    category: '蔬菜类' 
+  },
+  '苋菜': { 
+    calories: 25, protein: 2.8, carbs: 4.0, fat: 0.3, fiber: 1.8,
+    sodium: 32, cholesterol: 0, vitaminA: 352, vitaminC: 30, calcium: 180, iron: 2.9,
+    category: '蔬菜类' 
+  },
+  '茼蒿': { 
+    calories: 21, protein: 1.9, carbs: 3.0, fat: 0.3, fiber: 1.2,
+    sodium: 161, cholesterol: 0, vitaminA: 252, vitaminC: 18, calcium: 73, iron: 2.5,
+    category: '蔬菜类' 
+  },
+  '娃娃菜': { 
+    calories: 11, protein: 1.0, carbs: 2.0, fat: 0.1, fiber: 0.6,
+    sodium: 19, cholesterol: 0, vitaminA: 28, vitaminC: 12, calcium: 35, iron: 0.4,
+    category: '蔬菜类' 
+  },
+  '西葫芦': { 
+    calories: 18, protein: 0.8, carbs: 4.0, fat: 0.2, fiber: 0.6,
+    sodium: 2, cholesterol: 0, vitaminA: 10, vitaminC: 9, calcium: 15, iron: 0.3,
+    category: '蔬菜类' 
+  },
+  '佛手瓜': { 
+    calories: 16, protein: 0.9, carbs: 3.0, fat: 0.1, fiber: 0.3,
+    sodium: 1, cholesterol: 0, vitaminA: 3, vitaminC: 8, calcium: 17, iron: 0.1,
+    category: '蔬菜类' 
+  },
+  '红菜苔': { 
+    calories: 21, protein: 2.0, carbs: 3.0, fat: 0.3, fiber: 1.2,
+    sodium: 28, cholesterol: 0, vitaminA: 160, vitaminC: 45, calcium: 65, iron: 1.3,
+    category: '蔬菜类' 
+  },
+  
+  // 新增水果类样本
+  '杨桃': { 
+    calories: 29, protein: 0.5, carbs: 7.0, fat: 0.3, fiber: 2.8,
+    sodium: 2, cholesterol: 0, vitaminA: 4, vitaminC: 35, calcium: 5, iron: 0.2,
+    category: '水果类', glycemicIndex: 38 
+  },
+  '莲雾': { 
+    calories: 25, protein: 0.5, carbs: 6.0, fat: 0.1, fiber: 1.0,
+    sodium: 4, cholesterol: 0, vitaminA: 3, vitaminC: 18, calcium: 4, iron: 0.2,
+    category: '水果类', glycemicIndex: 35 
+  },
+  '番石榴': { 
+    calories: 41, protein: 1.1, carbs: 10.0, fat: 0.3, fiber: 5.4,
+    sodium: 2, cholesterol: 0, vitaminA: 31, vitaminC: 228, calcium: 18, iron: 0.3,
+    category: '水果类', glycemicIndex: 31 
+  },
+  '释迦果': { 
+    calories: 94, protein: 1.7, carbs: 24.0, fat: 0.3, fiber: 2.3,
+    sodium: 4, cholesterol: 0, vitaminA: 0, vitaminC: 12, calcium: 10, iron: 0.3,
+    category: '水果类', glycemicIndex: 54 
+  },
+  '红毛丹': { 
+    calories: 75, protein: 1.0, carbs: 18.0, fat: 0.5, fiber: 1.3,
+    sodium: 3, cholesterol: 0, vitaminA: 0, vitaminC: 23, calcium: 10, iron: 0.4,
+    category: '水果类', glycemicIndex: 55 
+  },
+  '黄皮': { 
+    calories: 39, protein: 1.0, carbs: 9.0, fat: 0.2, fiber: 1.3,
+    sodium: 2, cholesterol: 0, vitaminA: 0, vitaminC: 35, calcium: 12, iron: 0.4,
+    category: '水果类', glycemicIndex: 40 
+  },
+  '人心果': { 
+    calories: 83, protein: 0.4, carbs: 20.0, fat: 1.1, fiber: 5.4,
+    sodium: 12, cholesterol: 0, vitaminA: 3, vitaminC: 15, calcium: 21, iron: 0.8,
+    category: '水果类', glycemicIndex: 50 
+  },
+  '蛋黄果': { 
+    calories: 139, protein: 1.7, carbs: 36.0, fat: 0.1, fiber: 0.5,
+    sodium: 2, cholesterol: 0, vitaminA: 30, vitaminC: 18, calcium: 18, iron: 0.5,
+    category: '水果类', glycemicIndex: 55 
+  },
+  '嘉宝果': { 
+    calories: 51, protein: 0.4, carbs: 13.0, fat: 0.1, fiber: 0.4,
+    sodium: 3, cholesterol: 0, vitaminA: 0, vitaminC: 20, calcium: 8, iron: 0.2,
+    category: '水果类', glycemicIndex: 45 
+  },
+  '黑加仑': { 
+    calories: 63, protein: 1.4, carbs: 15.0, fat: 0.2, fiber: 4.3,
+    sodium: 2, cholesterol: 0, vitaminA: 5, vitaminC: 181, calcium: 55, iron: 1.5,
+    category: '水果类', glycemicIndex: 25 
+  },
+  
+  // 新增肉类样本
+  '鸽子': { 
+    calories: 201, protein: 17.0, carbs: 0.0, fat: 14.0, fiber: 0,
+    sodium: 70, cholesterol: 99, vitaminA: 30, vitaminC: 0, calcium: 30, iron: 3.8,
+    category: '肉类' 
+  },
+  '鹌鹑': { 
+    calories: 110, protein: 20.0, carbs: 0.0, fat: 3.0, fiber: 0,
+    sodium: 50, cholesterol: 120, vitaminA: 40, vitaminC: 0, calcium: 48, iron: 2.3,
+    category: '肉类' 
+  },
+  '田鸡': { 
+    calories: 81, protein: 20.0, carbs: 0.0, fat: 0.3, fiber: 0,
+    sodium: 55, cholesterol: 40, vitaminA: 10, vitaminC: 0, calcium: 127, iron: 1.5,
+    category: '肉类' 
+  },
+  '牛蛙': { 
+    calories: 81, protein: 20.0, carbs: 0.0, fat: 0.3, fiber: 0,
+    sodium: 55, cholesterol: 40, vitaminA: 10, vitaminC: 0, calcium: 127, iron: 1.5,
+    category: '肉类' 
+  },
+  '驴肉': { 
+    calories: 116, protein: 21.5, carbs: 0.0, fat: 3.2, fiber: 0,
+    sodium: 47, cholesterol: 74, vitaminA: 0, vitaminC: 0, calcium: 2, iron: 4.3,
+    category: '肉类' 
+  },
+  '马肉': { 
+    calories: 122, protein: 20.0, carbs: 0.0, fat: 4.0, fiber: 0,
+    sodium: 55, cholesterol: 84, vitaminA: 0, vitaminC: 0, calcium: 5, iron: 3.5,
+    category: '肉类' 
+  },
+  '鹿肉': { 
+    calories: 120, protein: 22.0, carbs: 0.0, fat: 2.5, fiber: 0,
+    sodium: 50, cholesterol: 70, vitaminA: 0, vitaminC: 0, calcium: 4, iron: 3.0,
+    category: '肉类' 
+  },
+  '鸵鸟肉': { 
+    calories: 98, protein: 21.0, carbs: 0.0, fat: 1.5, fiber: 0,
+    sodium: 60, cholesterol: 57, vitaminA: 0, vitaminC: 0, calcium: 5, iron: 3.2,
+    category: '肉类' 
+  },
+  '火鸡': { 
+    calories: 103, protein: 22.0, carbs: 0.0, fat: 1.0, fiber: 0,
+    sodium: 55, cholesterol: 55, vitaminA: 0, vitaminC: 0, calcium: 12, iron: 1.2,
+    category: '肉类' 
+  },
+  '猪舌': { 
+    calories: 233, protein: 15.0, carbs: 0.0, fat: 18.0, fiber: 0,
+    sodium: 85, cholesterol: 158, vitaminA: 15, vitaminC: 0, calcium: 6, iron: 2.4,
+    category: '肉类' 
+  },
+  
+  // 新增海鲜类样本
+  '黄鳝': { 
+    calories: 89, protein: 18.0, carbs: 0.0, fat: 1.4, fiber: 0,
+    sodium: 70, cholesterol: 126, vitaminA: 50, vitaminC: 0, calcium: 42, iron: 2.5,
+    category: '海鲜类' 
+  },
+  '泥鳅': { 
+    calories: 96, protein: 17.0, carbs: 0.0, fat: 2.0, fiber: 0,
+    sodium: 75, cholesterol: 136, vitaminA: 14, vitaminC: 0, calcium: 299, iron: 2.9,
+    category: '海鲜类' 
+  },
+  '鳗鱼': { 
+    calories: 181, protein: 18.0, carbs: 0.0, fat: 11.0, fiber: 0,
+    sodium: 95, cholesterol: 177, vitaminA: 25, vitaminC: 0, calcium: 42, iron: 1.2,
+    category: '海鲜类' 
+  },
+  '河鳗': { 
+    calories: 181, protein: 18.0, carbs: 0.0, fat: 11.0, fiber: 0,
+    sodium: 95, cholesterol: 177, vitaminA: 25, vitaminC: 0, calcium: 42, iron: 1.2,
+    category: '海鲜类' 
+  },
+  '海鳗': { 
+    calories: 122, protein: 20.0, carbs: 0.0, fat: 4.0, fiber: 0,
+    sodium: 80, cholesterol: 71, vitaminA: 23, vitaminC: 0, calcium: 28, iron: 0.7,
+    category: '海鲜类' 
+  },
+  '沙丁鱼': { 
+    calories: 89, protein: 19.0, carbs: 0.0, fat: 1.5, fiber: 0,
+    sodium: 115, cholesterol: 70, vitaminA: 30, vitaminC: 0, calcium: 184, iron: 1.4,
+    category: '海鲜类' 
+  },
+  '鲭鱼': { 
+    calories: 155, protein: 20.0, carbs: 0.0, fat: 8.0, fiber: 0,
+    sodium: 90, cholesterol: 75, vitaminA: 35, vitaminC: 0, calcium: 15, iron: 1.0,
+    category: '海鲜类' 
+  },
+  '鲱鱼': { 
+    calories: 158, protein: 18.0, carbs: 0.0, fat: 9.0, fiber: 0,
+    sodium: 90, cholesterol: 77, vitaminA: 28, vitaminC: 0, calcium: 57, iron: 1.1,
+    category: '海鲜类' 
+  },
+  '鳟鱼': { 
+    calories: 148, protein: 21.0, carbs: 0.0, fat: 6.0, fiber: 0,
+    sodium: 45, cholesterol: 59, vitaminA: 15, vitaminC: 0, calcium: 18, iron: 0.7,
+    category: '海鲜类' 
+  },
+  '象拔蚌': { 
+    calories: 74, protein: 13.0, carbs: 3.0, fat: 1.0, fiber: 0,
+    sodium: 180, cholesterol: 45, vitaminA: 0, vitaminC: 0, calcium: 50, iron: 3.5,
+    category: '海鲜类' 
+  },
+  
+  // 新增蛋类样本
+  '鸽子蛋': { 
+    calories: 173, protein: 14.0, carbs: 1.0, fat: 12.0, fiber: 0,
+    sodium: 120, cholesterol: 480, vitaminA: 280, vitaminC: 0, calcium: 45, iron: 2.8,
+    category: '蛋类' 
+  },
+  '土鸡蛋': { 
+    calories: 147, protein: 13.0, carbs: 1.0, fat: 10.0, fiber: 0,
+    sodium: 125, cholesterol: 580, vitaminA: 240, vitaminC: 0, calcium: 55, iron: 2.1,
+    category: '蛋类' 
+  },
+  '洋鸡蛋': { 
+    calories: 144, protein: 13.0, carbs: 1.3, fat: 9.0, fiber: 0,
+    sodium: 131, cholesterol: 585, vitaminA: 234, vitaminC: 0, calcium: 56, iron: 2.0,
+    category: '蛋类' 
+  },
+  '乌鸡蛋': { 
+    calories: 141, protein: 13.0, carbs: 1.0, fat: 9.0, fiber: 0,
+    sodium: 118, cholesterol: 520, vitaminA: 250, vitaminC: 0, calcium: 48, iron: 1.9,
+    category: '蛋类' 
+  },
+  '初生蛋': { 
+    calories: 145, protein: 13.5, carbs: 1.0, fat: 9.5, fiber: 0,
+    sodium: 128, cholesterol: 560, vitaminA: 245, vitaminC: 0, calcium: 52, iron: 2.0,
+    category: '蛋类' 
+  },
+  '溏心蛋': { 
+    calories: 150, protein: 12.5, carbs: 1.0, fat: 10.0, fiber: 0,
+    sodium: 135, cholesterol: 590, vitaminA: 235, vitaminC: 0, calcium: 54, iron: 2.0,
+    category: '蛋类' 
+  },
+  '蛋卷': { 
+    calories: 220, protein: 10.0, carbs: 15.0, fat: 14.0, fiber: 0.3,
+    sodium: 280, cholesterol: 200, vitaminA: 100, vitaminC: 0, calcium: 40, iron: 1.5,
+    category: '蛋类' 
+  },
+  '蛋饺': { 
+    calories: 195, protein: 12.0, carbs: 8.0, fat: 13.0, fiber: 0.2,
+    sodium: 320, cholesterol: 250, vitaminA: 120, vitaminC: 0, calcium: 35, iron: 1.8,
+    category: '蛋类' 
+  },
+  '虎皮蛋': { 
+    calories: 210, protein: 13.0, carbs: 2.0, fat: 17.0, fiber: 0,
+    sodium: 200, cholesterol: 600, vitaminA: 230, vitaminC: 0, calcium: 50, iron: 2.1,
+    category: '蛋类' 
+  },
+  '醉蛋': { 
+    calories: 165, protein: 13.0, carbs: 3.0, fat: 11.0, fiber: 0,
+    sodium: 380, cholesterol: 590, vitaminA: 225, vitaminC: 0, calcium: 48, iron: 1.9,
+    category: '蛋类' 
+  },
+  
+  // 新增豆制品样本
+  '千张': { 
+    calories: 260, protein: 24.0, carbs: 5.0, fat: 16.0, fiber: 1.0,
+    sodium: 15, cholesterol: 0, vitaminA: 0, vitaminC: 0, calcium: 313, iron: 6.4,
+    category: '豆制品' 
+  },
+  '素鸡': { 
+    calories: 192, protein: 16.0, carbs: 4.0, fat: 13.0, fiber: 0.5,
+    sodium: 450, cholesterol: 0, vitaminA: 0, vitaminC: 0, calcium: 319, iron: 5.3,
+    category: '豆制品' 
+  },
+  '烤麸': { 
+    calories: 121, protein: 20.0, carbs: 5.0, fat: 2.0, fiber: 0.2,
+    sodium: 230, cholesterol: 0, vitaminA: 0, vitaminC: 0, calcium: 30, iron: 2.7,
+    category: '豆制品' 
+  },
+  '豆渣': { 
+    calories: 77, protein: 7.0, carbs: 8.0, fat: 3.0, fiber: 3.5,
+    sodium: 5, cholesterol: 0, vitaminA: 0, vitaminC: 0, calcium: 40, iron: 1.2,
+    category: '豆制品' 
+  },
+  '豆皮': { 
+    calories: 409, protein: 44.0, carbs: 18.0, fat: 18.0, fiber: 0.2,
+    sodium: 9, cholesterol: 0, vitaminA: 0, vitaminC: 0, calcium: 116, iron: 13.9,
+    category: '豆制品' 
+  },
+  '腐乳': { 
+    calories: 181, protein: 12.0, carbs: 8.0, fat: 11.0, fiber: 0.5,
+    sodium: 3091, cholesterol: 0, vitaminA: 15, vitaminC: 0, calcium: 61, iron: 11.5,
+    category: '豆制品' 
+  },
+  '豆豉': { 
+    calories: 259, protein: 25.0, carbs: 20.0, fat: 12.0, fiber: 5.0,
+    sodium: 2640, cholesterol: 0, vitaminA: 0, vitaminC: 0, calcium: 105, iron: 12.0,
+    category: '豆制品' 
+  },
+  '天贝': { 
+    calories: 193, protein: 19.0, carbs: 8.0, fat: 11.0, fiber: 2.0,
+    sodium: 9, cholesterol: 0, vitaminA: 0, vitaminC: 0, calcium: 111, iron: 2.7,
+    category: '豆制品' 
+  },
+  '鹰嘴豆': { 
+    calories: 164, protein: 9.0, carbs: 27.0, fat: 3.0, fiber: 7.6,
+    sodium: 7, cholesterol: 0, vitaminA: 1, vitaminC: 1, calcium: 49, iron: 2.9,
+    category: '豆制品' 
+  },
+  '青豆': { 
+    calories: 373, protein: 34.0, carbs: 35.0, fat: 16.0, fiber: 12.0,
+    sodium: 2, cholesterol: 0, vitaminA: 15, vitaminC: 0, calcium: 200, iron: 7.1,
+    category: '豆制品' 
+  },
+  
+  // 新增乳制品样本
+  '羊奶': { 
+    calories: 59, protein: 3.0, carbs: 5.0, fat: 3.5, fiber: 0,
+    sodium: 40, cholesterol: 15, vitaminA: 33, vitaminC: 1, calcium: 121, iron: 0.1,
+    category: '乳制品' 
+  },
+  '马奶': { 
+    calories: 44, protein: 2.0, carbs: 6.0, fat: 1.5, fiber: 0,
+    sodium: 25, cholesterol: 5, vitaminA: 10, vitaminC: 5, calcium: 90, iron: 0.1,
+    category: '乳制品' 
+  },
+  '水牛奶': { 
+    calories: 97, protein: 4.0, carbs: 5.0, fat: 7.0, fiber: 0,
+    sodium: 50, cholesterol: 25, vitaminA: 40, vitaminC: 1, calcium: 150, iron: 0.2,
+    category: '乳制品' 
+  },
+  '奶粉': { 
+    calories: 484, protein: 20.0, carbs: 52.0, fat: 21.0, fiber: 0,
+    sodium: 371, cholesterol: 110, vitaminA: 180, vitaminC: 7, calcium: 676, iron: 1.2,
+    category: '乳制品' 
+  },
+  '全脂奶粉': { 
+    calories: 501, protein: 21.0, carbs: 51.0, fat: 24.0, fiber: 0,
+    sodium: 380, cholesterol: 120, vitaminA: 200, vitaminC: 8, calcium: 700, iron: 1.3,
+    category: '乳制品' 
+  },
+  '脱脂奶粉': { 
+    calories: 357, protein: 35.0, carbs: 52.0, fat: 1.0, fiber: 0,
+    sodium: 400, cholesterol: 15, vitaminA: 0, vitaminC: 10, calcium: 1200, iron: 0.5,
+    category: '乳制品' 
+  },
+  '奶片': { 
+    calories: 472, protein: 15.0, carbs: 60.0, fat: 18.0, fiber: 0,
+    sodium: 250, cholesterol: 50, vitaminA: 80, vitaminC: 2, calcium: 350, iron: 0.8,
+    category: '乳制品' 
+  },
+  '奶皮子': { 
+    calories: 458, protein: 12.0, carbs: 10.0, fat: 43.0, fiber: 0,
+    sodium: 100, cholesterol: 150, vitaminA: 200, vitaminC: 0, calcium: 200, iron: 0.5,
+    category: '乳制品' 
+  },
+  '奶豆腐': { 
+    calories: 305, protein: 20.0, carbs: 15.0, fat: 19.0, fiber: 0,
+    sodium: 80, cholesterol: 60, vitaminA: 100, vitaminC: 0, calcium: 400, iron: 0.8,
+    category: '乳制品' 
+  },
+  '奶疙瘩': { 
+    calories: 326, protein: 22.0, carbs: 18.0, fat: 18.0, fiber: 0,
+    sodium: 90, cholesterol: 65, vitaminA: 110, vitaminC: 0, calcium: 420, iron: 0.9,
+    category: '乳制品' 
+  },
+  
+  // 新增坚果类样本
+  '花生酱': { 
+    calories: 594, protein: 22.0, carbs: 20.0, fat: 50.0, fiber: 5.0,
+    sodium: 426, cholesterol: 0, vitaminA: 0, vitaminC: 0, calcium: 49, iron: 1.9,
+    category: '坚果类' 
+  },
+  '芝麻': { 
+    calories: 517, protein: 19.0, carbs: 24.0, fat: 46.0, fiber: 11.0,
+    sodium: 9, cholesterol: 0, vitaminA: 0, vitaminC: 0, calcium: 780, iron: 14.1,
+    category: '坚果类' 
+  },
+  '黑芝麻': { 
+    calories: 531, protein: 20.0, carbs: 24.0, fat: 47.0, fiber: 14.0,
+    sodium: 8, cholesterol: 0, vitaminA: 0, vitaminC: 0, calcium: 780, iron: 22.7,
+    category: '坚果类' 
+  },
+  '白芝麻': { 
+    calories: 517, protein: 19.0, carbs: 24.0, fat: 46.0, fiber: 11.0,
+    sodium: 9, cholesterol: 0, vitaminA: 0, vitaminC: 0, calcium: 780, iron: 14.1,
+    category: '坚果类' 
+  },
+  '芝麻酱': { 
+    calories: 618, protein: 20.0, carbs: 15.0, fat: 53.0, fiber: 6.0,
+    sodium: 25, cholesterol: 0, vitaminA: 0, vitaminC: 0, calcium: 870, iron: 50.3,
+    category: '坚果类' 
+  },
+  '核桃仁': { 
+    calories: 654, protein: 15.0, carbs: 14.0, fat: 65.0, fiber: 6.7,
+    sodium: 2, cholesterol: 0, vitaminA: 0, vitaminC: 1, calcium: 98, iron: 2.9,
+    category: '坚果类' 
+  },
+  '腰果仁': { 
+    calories: 553, protein: 18.0, carbs: 30.0, fat: 44.0, fiber: 3.3,
+    sodium: 12, cholesterol: 0, vitaminA: 0, vitaminC: 0, calcium: 37, iron: 6.7,
+    category: '坚果类' 
+  },
+  '杏仁露': { 
+    calories: 46, protein: 0.9, carbs: 9.0, fat: 1.1, fiber: 0,
+    sodium: 20, cholesterol: 0, vitaminA: 0, vitaminC: 0, calcium: 15, iron: 0.2,
+    category: '坚果类' 
+  },
+  '椰蓉': { 
+    calories: 354, protein: 3.3, carbs: 15.0, fat: 33.0, fiber: 9.0,
+    sodium: 20, cholesterol: 0, vitaminA: 0, vitaminC: 3, calcium: 14, iron: 2.4,
+    category: '坚果类' 
+  },
+  '椰浆': { 
+    calories: 230, protein: 2.0, carbs: 6.0, fat: 24.0, fiber: 0.5,
+    sodium: 15, cholesterol: 0, vitaminA: 0, vitaminC: 1, calcium: 16, iron: 0.8,
+    category: '坚果类' 
+  },
+  
+  // 新增饮料样本
+  '豆奶': { 
+    calories: 54, protein: 3.0, carbs: 6.0, fat: 2.0, fiber: 0.3,
+    sodium: 5, cholesterol: 0, vitaminA: 0, vitaminC: 0, calcium: 15, iron: 0.5,
+    category: '饮料' 
+  },
+  '燕麦奶': { 
+    calories: 45, protein: 1.0, carbs: 7.0, fat: 1.5, fiber: 0.5,
+    sodium: 50, cholesterol: 0, vitaminA: 0, vitaminC: 0, calcium: 120, iron: 0.3,
+    category: '饮料' 
+  },
+  '杏仁奶': { 
+    calories: 17, protein: 0.6, carbs: 1.0, fat: 1.1, fiber: 0.3,
+    sodium: 50, cholesterol: 0, vitaminA: 0, vitaminC: 0, calcium: 120, iron: 0.2,
+    category: '饮料' 
+  },
+  '椰奶': { 
+    calories: 230, protein: 2.0, carbs: 6.0, fat: 24.0, fiber: 0.5,
+    sodium: 15, cholesterol: 0, vitaminA: 0, vitaminC: 1, calcium: 16, iron: 0.8,
+    category: '饮料' 
+  },
+  '米浆': { 
+    calories: 60, protein: 1.5, carbs: 12.0, fat: 0.5, fiber: 0.2,
+    sodium: 5, cholesterol: 0, vitaminA: 0, vitaminC: 0, calcium: 10, iron: 0.2,
+    category: '饮料' 
+  },
+  '花生奶': { 
+    calories: 65, protein: 2.5, carbs: 8.0, fat: 3.0, fiber: 0.3,
+    sodium: 30, cholesterol: 0, vitaminA: 0, vitaminC: 0, calcium: 20, iron: 0.3,
+    category: '饮料' 
+  },
+  '核桃奶': { 
+    calories: 55, protein: 2.0, carbs: 7.0, fat: 2.5, fiber: 0.2,
+    sodium: 25, cholesterol: 0, vitaminA: 0, vitaminC: 0, calcium: 15, iron: 0.2,
+    category: '饮料' 
+  },
+  '杨枝甘露': { 
+    calories: 95, protein: 1.5, carbs: 18.0, fat: 2.5, fiber: 0.5,
+    sodium: 15, cholesterol: 5, vitaminA: 20, vitaminC: 15, calcium: 25, iron: 0.3,
+    category: '饮料' 
+  },
+  '双皮奶': { 
+    calories: 120, protein: 4.0, carbs: 15.0, fat: 5.0, fiber: 0,
+    sodium: 50, cholesterol: 20, vitaminA: 30, vitaminC: 0, calcium: 100, iron: 0.2,
+    category: '饮料' 
+  },
+  '姜撞奶': { 
+    calories: 115, protein: 3.5, carbs: 16.0, fat: 4.5, fiber: 0,
+    sodium: 45, cholesterol: 18, vitaminA: 25, vitaminC: 2, calcium: 95, iron: 0.2,
+    category: '饮料' 
+  },
+  
+  // 新增零食样本
+  '凤梨酥': { 
+    calories: 428, protein: 4.0, carbs: 55.0, fat: 22.0, fiber: 0.5,
+    sodium: 150, cholesterol: 30, vitaminA: 10, vitaminC: 0, calcium: 15, iron: 0.5,
+    category: '零食' 
+  },
+  '蛋黄酥': { 
+    calories: 461, protein: 6.0, carbs: 52.0, fat: 26.0, fiber: 0.5,
+    sodium: 180, cholesterol: 100, vitaminA: 50, vitaminC: 0, calcium: 25, iron: 0.8,
+    category: '零食' 
+  },
+  '绿豆糕': { 
+    calories: 349, protein: 5.0, carbs: 55.0, fat: 13.0, fiber: 1.0,
+    sodium: 80, cholesterol: 0, vitaminA: 0, vitaminC: 0, calcium: 30, iron: 1.0,
+    category: '零食' 
+  },
+  '桂花糕': { 
+    calories: 321, protein: 3.0, carbs: 65.0, fat: 5.0, fiber: 0.5,
+    sodium: 50, cholesterol: 0, vitaminA: 0, vitaminC: 0, calcium: 15, iron: 0.5,
+    category: '零食' 
+  },
+  '驴打滚': { 
+    calories: 285, protein: 5.0, carbs: 52.0, fat: 7.0, fiber: 1.0,
+    sodium: 60, cholesterol: 0, vitaminA: 0, vitaminC: 0, calcium: 20, iron: 0.8,
+    category: '零食' 
+  },
+  '萨其马': { 
+    calories: 439, protein: 5.0, carbs: 62.0, fat: 20.0, fiber: 0.5,
+    sodium: 200, cholesterol: 25, vitaminA: 5, vitaminC: 0, calcium: 20, iron: 0.6,
+    category: '零食' 
+  },
+  '麻花': { 
+    calories: 524, protein: 8.0, carbs: 52.0, fat: 32.0, fiber: 1.0,
+    sodium: 350, cholesterol: 0, vitaminA: 0, vitaminC: 0, calcium: 25, iron: 1.2,
+    category: '零食' 
+  },
+  '锅巴': { 
+    calories: 554, protein: 7.0, carbs: 60.0, fat: 32.0, fiber: 1.5,
+    sodium: 600, cholesterol: 0, vitaminA: 0, vitaminC: 0, calcium: 20, iron: 1.5,
+    category: '零食' 
+  },
+  '米花糖': { 
+    calories: 384, protein: 3.0, carbs: 85.0, fat: 4.0, fiber: 0.5,
+    sodium: 80, cholesterol: 0, vitaminA: 0, vitaminC: 0, calcium: 10, iron: 0.3,
+    category: '零食' 
+  },
+  '牛轧糖': { 
+    calories: 432, protein: 6.0, carbs: 65.0, fat: 17.0, fiber: 0.5,
+    sodium: 100, cholesterol: 15, vitaminA: 5, vitaminC: 0, calcium: 40, iron: 0.5,
+    category: '零食' 
+  },
+  
+  // 新增快餐样本
+  '肉松饼': { 
+    calories: 385, protein: 8.0, carbs: 48.0, fat: 18.0, fiber: 0.8,
+    sodium: 450, cholesterol: 30, vitaminA: 10, vitaminC: 0, calcium: 25, iron: 1.2,
+    category: '快餐' 
+  },
+  '葱油饼': { 
+    calories: 325, protein: 6.0, carbs: 42.0, fat: 15.0, fiber: 1.0,
+    sodium: 520, cholesterol: 0, vitaminA: 5, vitaminC: 0, calcium: 20, iron: 1.5,
+    category: '快餐' 
+  },
+  '韭菜盒子': { 
+    calories: 265, protein: 6.0, carbs: 35.0, fat: 12.0, fiber: 1.5,
+    sodium: 480, cholesterol: 0, vitaminA: 80, vitaminC: 5, calcium: 45, iron: 1.8,
+    category: '快餐' 
+  },
+  '锅贴': { 
+    calories: 230, protein: 7.0, carbs: 28.0, fat: 10.0, fiber: 0.8,
+    sodium: 420, cholesterol: 25, vitaminA: 15, vitaminC: 2, calcium: 20, iron: 1.3,
+    category: '快餐' 
+  },
+  '生煎包': { 
+    calories: 275, protein: 8.0, carbs: 35.0, fat: 12.0, fiber: 0.8,
+    sodium: 500, cholesterol: 35, vitaminA: 20, vitaminC: 1, calcium: 25, iron: 1.5,
+    category: '快餐' 
+  },
+  '小笼包': { 
+    calories: 232, protein: 8.0, carbs: 30.0, fat: 9.0, fiber: 0.5,
+    sodium: 450, cholesterol: 40, vitaminA: 15, vitaminC: 1, calcium: 22, iron: 1.4,
+    category: '快餐' 
+  },
+  '肠粉': { 
+    calories: 110, protein: 3.0, carbs: 22.0, fat: 1.5, fiber: 0.3,
+    sodium: 280, cholesterol: 20, vitaminA: 5, vitaminC: 0, calcium: 10, iron: 0.5,
+    category: '快餐' 
+  },
+  '虾饺': { 
+    calories: 185, protein: 8.0, carbs: 25.0, fat: 6.0, fiber: 0.5,
+    sodium: 380, cholesterol: 55, vitaminA: 25, vitaminC: 1, calcium: 35, iron: 1.0,
+    category: '快餐' 
+  },
+  '烧卖': { 
+    calories: 238, protein: 6.8, carbs: 32.0, fat: 9.0, fiber: 0.5,
+    sodium: 380, cholesterol: 45, vitaminA: 20, vitaminC: 1, calcium: 18, iron: 1.5,
+    category: '快餐' 
+  },
+  '叉烧包': { 
+    calories: 280, protein: 7.0, carbs: 42.0, fat: 9.0, fiber: 0.8,
+    sodium: 420, cholesterol: 20, vitaminA: 10, vitaminC: 0, calcium: 20, iron: 1.2,
+    category: '快餐' 
+  },
   '蛋糕': { 
     calories: 348, protein: 5.0, carbs: 52.0, fat: 14.0, fiber: 0.5,
     sodium: 300, cholesterol: 55, vitaminA: 50, vitaminC: 0, calcium: 25, iron: 1.0,
