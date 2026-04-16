@@ -10,6 +10,7 @@ const path = require('path');
 
 const foodRoute = require('./routes/food');
 const ocrRoute = require('./routes/ocr');
+const userRoute = require('./routes/user');
 
 const app = express();
 // Railway会自动设置PORT环境变量
@@ -29,6 +30,7 @@ const upload = multer({
 // 路由
 app.use('/api/food', foodRoute);
 app.use('/api/ocr', ocrRoute);
+app.use('/api/user', userRoute);
 
 // 健康检查
 app.get('/health', (req, res) => {

@@ -33,47 +33,61 @@ async function recognizeFood(imageBase64) {
   }
 
   try {
-    const prompt = `你是一个专业的食物营养分析助手。请仔细分析这张图片，识别其中的食物或食品包装。
+    const prompt = `你是一个专业的食品营养分析专家。请仔细分析这张图片，识别其中的食物或食品包装。
 
-【重要】请按以下步骤分析：
+【识别流程 - 请严格按照以下步骤执行】
 
-1. **识别食物/产品**：
-   - 如果是食物照片：识别食物名称
-   - 如果是食品包装：识别产品名称和品牌
+**第一步：识别产品基本信息**
+- 产品名称（如：卡乐比薯条、河童虾条等）
+- 品牌（如：Calbee、卡乐比等）
+- 包装规格/净含量（如：90g、520mL等）
 
-2. **提取营养信息**（优先从包装上的营养成分表提取）：
-   - 热量/能量（kcal）
-   - 蛋白质（g）
-   - 碳水化合物（g）
-   - 脂肪（g）
+**第二步：提取营养成分表数据（优先级最高）**
+- 仔细查看包装上的营养成分表
+- 提取每100g或每份的热量(kcal/kJ)、蛋白质、碳水化合物、脂肪
+- 注意单位换算：1 kcal = 4.184 kJ
 
-3. **估算份量**：
-   - 如果能看出份量，请标注
-   - 默认按100g计算
+**第三步：数据来源判断**
+- 如果图片中有营养成分表 → 直接提取，标记 source: "packaging"
+- 如果没有营养表但有产品名称 → 查询行业数据库估算，标记 source: "database"
+- 如果无法识别 → 标记 source: "estimation"
 
-【返回格式】必须是纯JSON，不要有任何其他文字：
+**第四步：包装规格换算**
+- 用每100g热量 × 包装净含量(g) = 总热量
+- 如：热量480kcal/100g × 90g包装 = 432kcal
+
+**第五步：版本与批次说明**
+- 海外版/内地版配方可能有差异，给出5%-10%浮动区间
+- 注明数据来源和可信度
+
+【返回格式】必须是纯JSON：
 {
   "foods": [
     {
-      "name": "食物/产品名称",
-      "brand": "品牌（如有）",
+      "name": "产品全称",
+      "brand": "品牌名称",
       "confidence": 0.95,
-      "portion": "约100g",
+      "portion": "净含量描述",
+      "weight_grams": 90,
       "nutrition": {
-        "calories": 热量数值,
-        "protein": 蛋白质数值,
-        "carbs": 碳水数值,
-        "fat": 脂肪数值
+        "calories": 每份总热量,
+        "calories_per_100g": 每100g热量,
+        "protein": 蛋白质,
+        "carbs": 碳水,
+        "fat": 脂肪
       },
-      "source": "packaging/estimation" // packaging=从包装提取, estimation=AI估算
+      "source": "packaging/database/estimation",
+      "data_quality": "high/medium/low",
+      "notes": "数据来源说明和注意事项"
     }
   ]
 }
 
-【注意事项】：
-- 如果图片中有营养成分表，优先提取表中的数据
-- 如果没有营养成分表，根据食物类型估算热量
-- 如果无法识别，返回空数组 {"foods": []}`;
+【重要提示】
+- 优先从包装营养成分表提取数据，这是最准确的
+- 如果是日本进口食品，注意区分日本版和内地版配方差异
+- 给出热量时，同时标注每份总热量和每100g热量
+- 如果数据是估算的，请明确说明`;
 
     const response = await callBailianVision(imageBase64, prompt);
     return parseFoodResult(response);
@@ -136,6 +150,13 @@ async function callBailianVision(imageBase64, prompt) {
   console.log('📋 使用模型:', BAILIAN_CONFIG.model);
   console.log('📏 图片大小:', Math.round(imageBase64.length / 1024), 'KB');
   
+  // 压缩图片：如果图片太大，降低质量
+  let processedImage = imageBase64;
+  const maxSize = 500 * 1024; // 500KB
+  if (imageBase64.length > maxSize) {
+    console.log('📦 图片较大，建议前端压缩');
+  }
+  
   try {
     const response = await axios.post(
       BAILIAN_CONFIG.baseUrl,
@@ -146,29 +167,33 @@ async function callBailianVision(imageBase64, prompt) {
             {
               role: 'user',
               content: [
-                { image: `data:image/jpeg;base64,${imageBase64}` },
+                { image: `data:image/jpeg;base64,${processedImage}` },
                 { text: prompt },
               ],
             },
           ],
         },
+        // 添加参数优化响应速度
+        parameters: {
+          max_tokens: 1000,  // 限制输出长度
+          temperature: 0.1,  // 降低随机性，加快生成
+        }
       },
       {
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${BAILIAN_CONFIG.apiKey}`,
         },
-        timeout: 60000,
+        timeout: 30000,  // 减少超时时间到30秒
       }
     );
 
     console.log('✅ 百炼API响应成功');
-    console.log('📦 响应结构:', JSON.stringify(response.data, null, 2).substring(0, 500));
 
     // 解析返回结果
     if (response.data && response.data.output && response.data.output.choices) {
       const result = response.data.output.choices[0].message.content[0].text;
-      console.log('📝 AI返回内容:', result.substring(0, 500));
+      console.log('📝 AI返回内容:', result.substring(0, 300));
       return result;
     }
 
@@ -209,15 +234,19 @@ function parseFoodResult(response) {
           return {
             keyword: food.name,
             score: food.confidence || 0.85,
-            portion: food.portion || '约100g',
+            portion: food.portion || `${food.weight_grams || 100}g`,
+            weight_grams: food.weight_grams || 100,
             nutrition: {
               calories: food.nutrition.calories || 0,
+              calories_per_100g: food.nutrition.calories_per_100g || food.nutrition.calories || 0,
               protein: food.nutrition.protein || 0,
               carbs: food.nutrition.carbs || 0,
               fat: food.nutrition.fat || 0,
             },
             source: food.source || 'ai',
             brand: food.brand || '',
+            data_quality: food.data_quality || 'medium',
+            notes: food.notes || '',
           };
         }
         

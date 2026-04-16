@@ -11,6 +11,10 @@ const path = require('path');
 const { NUTRITION_DB, findNutrition, getAllFoods, getCategories } = require('../data/nutrition-db');
 const smartMatch = require('../services/smart-match');
 
+// 搜索缓存
+const searchCache = new Map();
+const CACHE_DURATION = 5 * 60 * 1000; // 5分钟
+
 // AI服务优先级：百炼 > 小艺 > 百度
 let aiService = null;
 let aiType = 'none';
@@ -107,17 +111,22 @@ router.post('/recognize', async (req, res) => {
             return {
               name: item.keyword || item.name,
               confidence: item.score || 0.85,
+              brand: item.brand || '',
+              weight_grams: item.weight_grams || 100,
               nutrition: {
                 calories: item.nutrition.calories,
+                calories_per_100g: item.nutrition.calories_per_100g || item.nutrition.calories,
                 protein: item.nutrition.protein || 0,
                 carbs: item.nutrition.carbs || 0,
                 fat: item.nutrition.fat || 0,
                 fiber: 0,
-                unit: '100g',
+                unit: item.weight_grams ? `${item.weight_grams}g包装` : '100g',
               },
-              matchType: item.source === 'packaging' ? 'ai-packaging' : 'ai-estimation',
+              matchType: item.source === 'packaging' ? 'ai-packaging' : 
+                         item.source === 'database' ? 'ai-database' : 'ai-estimation',
               isEstimated: item.source !== 'packaging',
-              brand: item.brand || '',
+              data_quality: item.data_quality || 'medium',
+              notes: item.notes || '',
             };
           }
           
