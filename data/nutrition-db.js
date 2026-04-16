@@ -18,6 +18,68 @@
  */
 
 const NUTRITION_DB = {
+  // ==================== 饮料/水类 ====================
+  '水': { 
+    calories: 0, protein: 0, carbs: 0, fat: 0, fiber: 0,
+    sodium: 0, cholesterol: 0, vitaminA: 0, vitaminC: 0, calcium: 0, iron: 0,
+    category: '饮料', glycemicIndex: 0 
+  },
+  '纯净水': { 
+    calories: 0, protein: 0, carbs: 0, fat: 0, fiber: 0,
+    sodium: 0, cholesterol: 0, vitaminA: 0, vitaminC: 0, calcium: 0, iron: 0,
+    category: '饮料', glycemicIndex: 0 
+  },
+  '矿泉水': { 
+    calories: 0, protein: 0, carbs: 0, fat: 0, fiber: 0,
+    sodium: 0, cholesterol: 0, vitaminA: 0, vitaminC: 0, calcium: 0, iron: 0,
+    category: '饮料', glycemicIndex: 0 
+  },
+  '蒸馏水': { 
+    calories: 0, protein: 0, carbs: 0, fat: 0, fiber: 0,
+    sodium: 0, cholesterol: 0, vitaminA: 0, vitaminC: 0, calcium: 0, iron: 0,
+    category: '饮料', glycemicIndex: 0 
+  },
+  '农夫山泉': { 
+    calories: 0, protein: 0, carbs: 0, fat: 0, fiber: 0,
+    sodium: 0, cholesterol: 0, vitaminA: 0, vitaminC: 0, calcium: 0, iron: 0,
+    category: '饮料', glycemicIndex: 0 
+  },
+  '怡宝': { 
+    calories: 0, protein: 0, carbs: 0, fat: 0, fiber: 0,
+    sodium: 0, cholesterol: 0, vitaminA: 0, vitaminC: 0, calcium: 0, iron: 0,
+    category: '饮料', glycemicIndex: 0 
+  },
+  '无糖茶': { 
+    calories: 0, protein: 0, carbs: 0, fat: 0, fiber: 0,
+    sodium: 0, cholesterol: 0, vitaminA: 0, vitaminC: 0, calcium: 0, iron: 0,
+    category: '饮料', glycemicIndex: 0 
+  },
+  '无糖乌龙茶': { 
+    calories: 0, protein: 0, carbs: 0, fat: 0, fiber: 0,
+    sodium: 0, cholesterol: 0, vitaminA: 0, vitaminC: 0, calcium: 0, iron: 0,
+    category: '饮料', glycemicIndex: 0 
+  },
+  '无糖绿茶': { 
+    calories: 0, protein: 0, carbs: 0, fat: 0, fiber: 0,
+    sodium: 0, cholesterol: 0, vitaminA: 0, vitaminC: 0, calcium: 0, iron: 0,
+    category: '饮料', glycemicIndex: 0 
+  },
+  '黑咖啡': { 
+    calories: 2, protein: 0.3, carbs: 0, fat: 0, fiber: 0,
+    sodium: 2, cholesterol: 0, vitaminA: 0, vitaminC: 0, calcium: 2, iron: 0,
+    category: '饮料', glycemicIndex: 0 
+  },
+  '苏打水': { 
+    calories: 0, protein: 0, carbs: 0, fat: 0, fiber: 0,
+    sodium: 0, cholesterol: 0, vitaminA: 0, vitaminC: 0, calcium: 0, iron: 0,
+    category: '饮料', glycemicIndex: 0 
+  },
+  '气泡水': { 
+    calories: 0, protein: 0, carbs: 0, fat: 0, fiber: 0,
+    sodium: 0, cholesterol: 0, vitaminA: 0, vitaminC: 0, calcium: 0, iron: 0,
+    category: '饮料', glycemicIndex: 0 
+  },
+  
   // ==================== 谷薯类 ====================
   '米饭': { 
     calories: 116, protein: 2.6, carbs: 25.9, fat: 0.3, fiber: 0.3,
@@ -2067,10 +2129,35 @@ function findNutrition(foodName) {
     '豆制品': { calories: 100, protein: 10, carbs: 5, fat: 4, fiber: 1 },
     '乳制品': { calories: 70, protein: 3, carbs: 5, fat: 4, fiber: 0 },
     '坚果类': { calories: 600, protein: 18, carbs: 20, fat: 55, fiber: 8 },
-    '饮料': { calories: 40, protein: 0.2, carbs: 10, fat: 0, fiber: 0 },
+    '饮料': { calories: 0, protein: 0, carbs: 0, fat: 0, fiber: 0 },  // 默认无糖饮料
     '零食': { calories: 400, protein: 5, carbs: 50, fat: 20, fiber: 1 },
     '快餐': { calories: 200, protein: 8, carbs: 25, fat: 8, fiber: 1 },
   };
+
+  // 特殊处理：水相关关键词直接返回0热量
+  const waterKeywords = ['水', '纯净水', '矿泉水', '蒸馏水', '苏打水', '气泡水'];
+  for (const keyword of waterKeywords) {
+    if (foodName.includes(keyword)) {
+      return {
+        name: foodName,
+        calories: 0,
+        protein: 0,
+        carbs: 0,
+        fat: 0,
+        fiber: 0,
+        sodium: 0,
+        cholesterol: 0,
+        vitaminA: 0,
+        vitaminC: 0,
+        calcium: 0,
+        iron: 0,
+        confidence: 0.95,
+        unit: '100g',
+        category: '饮料',
+        isEstimated: false,
+      };
+    }
+  }
 
   // 尝试从名称推断类别
   for (const [category, estimate] of Object.entries(categoryEstimates)) {

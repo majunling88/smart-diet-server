@@ -1,28 +1,24 @@
 /**
- * 食物识别路由
+ * 食物识别路由 - 优化版
+ * 核心原则：本地优先，AI兜底，节约token
  */
 
 const express = require('express');
 const router = express.Router();
-const fs = require('fs');
-const path = require('path');
 
-// 导入营养数据库和智能匹配服务
 const { NUTRITION_DB, findNutrition, getAllFoods, getCategories } = require('../data/nutrition-db');
 const smartMatch = require('../services/smart-match');
 
-// 搜索缓存
+// 缓存配置
 const searchCache = new Map();
-const CACHE_DURATION = 5 * 60 * 1000; // 5分钟
+const CACHE_DURATION = 10 * 60 * 1000; // 10分钟缓存
 
-// AI服务优先级：百炼 > 小艺 > 百度
+// AI服务
 let aiService = null;
 let aiType = 'none';
 
-// 尝试加载百炼AI
 try {
   const bailian = require('../services/bailian-ai');
-  // 检查是否配置了API Key
   if (process.env.BAILIAN_API_KEY) {
     aiService = bailian;
     aiType = 'bailian';
@@ -32,152 +28,136 @@ try {
   console.log('⚠️ 百炼AI不可用');
 }
 
-// 如果百炼不可用，尝试小艺AI
-if (!aiService) {
-  try {
-    aiService = require('../services/xiaoyi-ai');
-    aiType = 'xiaoyi';
-    console.log('✅ 使用小艺AI服务');
-  } catch (e) {
-    console.log('⚠️ 小艺AI不可用');
-  }
-}
-
-// 如果都不可用，使用智能匹配
-if (!aiService) {
-  console.log('ℹ️ 使用本地智能匹配服务');
-}
-
 console.log(`📊 已加载 ${Object.keys(NUTRITION_DB).length} 种食物营养数据`);
 
 /**
+ * 判断是否需要调用AI
+ * @returns {boolean} true=需要AI, false=本地可处理
+ */
+function shouldUseAI(image, text) {
+  // 文本模式：本地优先
+  if (text && !image) {
+    const localResult = smartMatch.smartRecognize(text);
+    // 本地匹配成功且置信度高，不需要AI
+    if (localResult.length > 0 && localResult[0].confidence >= 0.9) {
+      return false;
+    }
+    // 本地匹配失败或置信度低，需要AI
+    return true;
+  }
+  
+  // 图片模式：必须用AI
+  if (image) {
+    return true;
+  }
+  
+  return false;
+}
+
+/**
+ * 判断图片是否可能是水/饮料
+ * @returns {boolean}
+ */
+function mightBeWater(imageBase64) {
+  // 简单判断：如果图片很小，可能是简单的瓶装水
+  // 实际应用中可以用更复杂的逻辑
+  return false;
+}
+
+/**
  * POST /api/food/recognize
- * 食物图片识别（智能匹配模式）
- * 
- * 请求体：{ image: "base64编码的图片" } 或 { text: "食物描述" }
- * 响应：{ foods: [...], nutrition: {...} }
+ * 食物识别 - 优化执行路径
  */
 router.post('/recognize', async (req, res) => {
   try {
     const { image, text } = req.body;
 
-    // 文本识别模式（优先）
-    if (text) {
+    // ========== 路径1: 文本模式（本地优先）==========
+    if (text && !image) {
+      console.log('📝 文本模式，尝试本地匹配...');
+      
+      // 检查缓存
+      const cacheKey = `text:${text}`;
+      if (searchCache.has(cacheKey)) {
+        console.log('✅ 命中缓存');
+        return res.json(searchCache.get(cacheKey));
+      }
+      
+      // 本地智能匹配
       const results = smartMatch.smartRecognize(text);
       
+      if (results.length > 0 && results[0].confidence >= 0.85) {
+        const response = {
+          success: true,
+          useAI: false,
+          aiType: 'smart-match',
+          foods: formatResults(results),
+          message: `本地匹配成功 (${results[0].matchType})`,
+          savedTokens: true,
+        };
+        
+        // 存入缓存
+        searchCache.set(cacheKey, response);
+        setTimeout(() => searchCache.delete(cacheKey), CACHE_DURATION);
+        
+        return res.json(response);
+      }
+      
+      // 本地匹配失败，需要AI（但文本模式通常不需要）
       return res.json({
         success: true,
         useAI: false,
         aiType: 'smart-match',
-        foods: results.map(r => ({
-          name: r.name,
-          confidence: r.confidence,
-          nutrition: {
-            calories: r.nutrition.calories,
-            protein: r.nutrition.protein,
-            carbs: r.nutrition.carbs,
-            fat: r.nutrition.fat,
-            fiber: r.nutrition.fiber,
-            unit: '100g',
-          },
-          matchType: r.matchType,
-          isEstimated: r.nutrition.isEstimated || false,
-        })),
-        message: `智能匹配成功 (${results[0]?.matchType || 'unknown'})`,
+        foods: formatResults(results),
+        message: '本地匹配完成',
+        confidence: results[0]?.confidence || 0,
       });
     }
 
-    // 图片识别模式（需要AI，暂时返回提示）
+    // ========== 路径2: 图片模式（AI识别）==========
     if (!image) {
       return res.status(400).json({ error: '请提供图片数据或食物描述文本' });
     }
 
-    // 调用百炼AI识别图片
-    if (aiService && aiType === 'bailian') {
-      console.log('🚀 开始AI图片识别...');
-      console.log('📏 图片Base64长度:', image ? image.length : 0);
-      
-      try {
-        const recognizedFoods = await aiService.recognizeFood(image);
-        console.log('🎯 AI识别结果:', JSON.stringify(recognizedFoods, null, 2));
-        
-        // 处理识别结果
-        const results = recognizedFoods.map(item => {
-          console.log('📦 处理识别项:', item.keyword || item.name);
-          
-          // 如果AI已经返回了营养信息（从包装提取），直接使用
-          if (item.nutrition && item.nutrition.calories > 0) {
-            console.log('✅ 使用AI提取的营养信息:', item.nutrition);
-            return {
-              name: item.keyword || item.name,
-              confidence: item.score || 0.85,
-              brand: item.brand || '',
-              weight_grams: item.weight_grams || 100,
-              nutrition: {
-                calories: item.nutrition.calories,
-                calories_per_100g: item.nutrition.calories_per_100g || item.nutrition.calories,
-                protein: item.nutrition.protein || 0,
-                carbs: item.nutrition.carbs || 0,
-                fat: item.nutrition.fat || 0,
-                fiber: 0,
-                unit: item.weight_grams ? `${item.weight_grams}g包装` : '100g',
-              },
-              matchType: item.source === 'packaging' ? 'ai-packaging' : 
-                         item.source === 'database' ? 'ai-database' : 'ai-estimation',
-              isEstimated: item.source !== 'packaging',
-              data_quality: item.data_quality || 'medium',
-              notes: item.notes || '',
-            };
-          }
-          
-          // 否则从本地数据库匹配
-          console.log('📚 从本地数据库匹配...');
-          const nutrition = findNutrition(item.keyword || item.name);
-          return {
-            name: nutrition.name,
-            confidence: item.score || 0.85,
-            nutrition: {
-              calories: nutrition.calories,
-              protein: nutrition.protein,
-              carbs: nutrition.carbs,
-              fat: nutrition.fat,
-              fiber: nutrition.fiber,
-              unit: '100g',
-            },
-            matchType: 'ai-local',
-            isEstimated: nutrition.isEstimated || false,
-          };
-        });
-
-        console.log('✅ 最终返回结果:', JSON.stringify(results, null, 2));
-        return res.json({
-          success: true,
-          useAI: true,
-          aiType: 'bailian',
-          foods: results,
-          message: results[0]?.matchType === 'ai-packaging' 
-            ? 'AI从包装提取营养信息成功' 
-            : 'AI识别成功',
-        });
-      } catch (aiError) {
-        console.error('❌ 百炼AI识别失败:', aiError.message);
-        console.error('📄 错误堆栈:', aiError.stack);
-        return res.json({
-          success: false,
-          error: 'AI识别失败: ' + aiError.message,
-          foods: [],
-        });
-      }
+    if (!aiService || aiType !== 'bailian') {
+      return res.json({
+        success: false,
+        error: 'AI服务未配置',
+        foods: [],
+        needTextInput: true,
+        message: '请输入食物名称进行识别',
+      });
     }
 
-    // 没有AI服务，返回提示
-    res.json({
-      success: true,
-      useAI: false,
-      needTextInput: true,
-      foods: [],
-      message: '请输入食物名称进行识别',
-    });
+    console.log('🚀 图片模式，调用AI识别...');
+    console.log('📏 图片大小:', Math.round(image.length / 1024), 'KB');
+
+    try {
+      // 调用AI识别
+      const recognizedFoods = await aiService.recognizeFood(image);
+      console.log('🎯 AI识别结果:', recognizedFoods.length, '项');
+
+      // 处理结果
+      const results = processAIResults(recognizedFoods);
+
+      return res.json({
+        success: true,
+        useAI: true,
+        aiType: 'bailian',
+        foods: results,
+        message: results[0]?.matchType === 'ai-packaging' 
+          ? 'AI从包装提取营养信息' 
+          : 'AI识别成功',
+      });
+
+    } catch (aiError) {
+      console.error('❌ AI识别失败:', aiError.message);
+      return res.json({
+        success: false,
+        error: 'AI识别失败: ' + aiError.message,
+        foods: [],
+      });
+    }
 
   } catch (error) {
     console.error('食物识别错误:', error);
@@ -186,342 +166,331 @@ router.post('/recognize', async (req, res) => {
 });
 
 /**
+ * 处理AI识别结果
+ */
+function processAIResults(recognizedFoods) {
+  return recognizedFoods.map(item => {
+    console.log('📦 处理:', item.keyword || item.name);
+    
+    // 特殊处理：水产品
+    const waterKeywords = ['水', '纯净水', '矿泉水', '农夫山泉', '怡宝', '娃哈哈', '冰露', '苏打水', '气泡水'];
+    const isWater = waterKeywords.some(kw => 
+      (item.name && item.name.includes(kw)) || 
+      (item.keyword && item.keyword.includes(kw)) ||
+      (item.brand && item.brand.includes(kw))
+    );
+    
+    if (isWater) {
+      console.log('💧 检测到水产品');
+      return createWaterResult(item);
+    }
+    
+    // AI返回了营养信息，直接使用
+    if (item.nutrition && (item.nutrition.calories > 0 || item.source === 'packaging')) {
+      return createAIResult(item);
+    }
+    
+    // 尝试本地数据库匹配
+    const localNutrition = findNutrition(item.keyword || item.name);
+    if (localNutrition && !localNutrition.isEstimated) {
+      return createLocalResult(item, localNutrition);
+    }
+    
+    // 使用AI估算结果
+    return createAIResult(item);
+  });
+}
+
+/**
+ * 创建水产品结果
+ */
+function createWaterResult(item) {
+  return {
+    name: item.name || item.keyword || '纯净水',
+    category: item.category || '饮料',
+    confidence: item.score || 0.98,
+    brand: item.brand || '',
+    weight_grams: item.weight_grams || 550,
+    size_description: item.size_description || '',
+    nutrition: {
+      calories: 0, calories_per_100g: 0, protein: 0, fat: 0, carbs: 0, fiber: 0,
+      sodium: 0, potassium: 0, calcium: 0, magnesium: 0, phosphorus: 0,
+      iron: 0, zinc: 0, selenium: 0, copper: 0,
+      vitaminA: 0, vitaminB1: 0, vitaminB2: 0, vitaminB3: 0,
+      vitaminC: 0, vitaminE: 0, folate: 0,
+      unit: `${item.weight_grams || 550}mL`,
+    },
+    matchType: 'ai-packaging',
+    isEstimated: false,
+    data_quality: 'high',
+    notes: '纯净水，无营养成分',
+  };
+}
+
+/**
+ * 创建AI结果
+ */
+function createAIResult(item) {
+  const nutrition = item.nutrition || {};
+  return {
+    name: item.keyword || item.name,
+    category: item.category || '其他',
+    confidence: item.score || 0.85,
+    brand: item.brand || '',
+    weight_grams: item.weight_grams || 100,
+    size_description: item.size_description || '',
+    nutrition: {
+      calories: nutrition.calories || 0,
+      calories_per_100g: nutrition.calories_per_100g || 0,
+      protein: nutrition.protein || 0,
+      fat: nutrition.fat || 0,
+      carbs: nutrition.carbs || 0,
+      fiber: nutrition.fiber || 0,
+      sodium: nutrition.sodium || 0,
+      potassium: nutrition.potassium || 0,
+      calcium: nutrition.calcium || 0,
+      magnesium: nutrition.magnesium || 0,
+      phosphorus: nutrition.phosphorus || 0,
+      iron: nutrition.iron || 0,
+      zinc: nutrition.zinc || 0,
+      selenium: nutrition.selenium || 0,
+      copper: nutrition.copper || 0,
+      vitaminA: nutrition.vitaminA || 0,
+      vitaminB1: nutrition.vitaminB1 || 0,
+      vitaminB2: nutrition.vitaminB2 || 0,
+      vitaminB3: nutrition.vitaminB3 || 0,
+      vitaminC: nutrition.vitaminC || 0,
+      vitaminE: nutrition.vitaminE || 0,
+      folate: nutrition.folate || 0,
+      unit: item.weight_grams ? `${item.weight_grams}g` : '100g',
+    },
+    matchType: item.source === 'packaging' ? 'ai-packaging' : 'ai-estimation',
+    isEstimated: item.source !== 'packaging',
+    data_quality: item.data_quality || 'medium',
+    notes: item.notes || '',
+  };
+}
+
+/**
+ * 创建本地匹配结果
+ */
+function createLocalResult(item, nutrition) {
+  return {
+    name: nutrition.name,
+    category: nutrition.category || '其他',
+    confidence: item.score || 0.85,
+    weight_grams: item.weight_grams || 100,
+    nutrition: {
+      calories: nutrition.calories,
+      calories_per_100g: nutrition.calories,
+      protein: nutrition.protein,
+      fat: nutrition.fat,
+      carbs: nutrition.carbs,
+      fiber: nutrition.fiber,
+      sodium: nutrition.sodium,
+      potassium: nutrition.potassium || 0,
+      calcium: nutrition.calcium,
+      magnesium: nutrition.magnesium || 0,
+      phosphorus: nutrition.phosphorus || 0,
+      iron: nutrition.iron,
+      zinc: nutrition.zinc || 0,
+      selenium: nutrition.selenium || 0,
+      copper: nutrition.copper || 0,
+      vitaminA: nutrition.vitaminA,
+      vitaminB1: nutrition.vitaminB1 || 0,
+      vitaminB2: nutrition.vitaminB2 || 0,
+      vitaminB3: nutrition.vitaminB3 || 0,
+      vitaminC: nutrition.vitaminC,
+      vitaminE: nutrition.vitaminE || 0,
+      folate: nutrition.folate || 0,
+      unit: '100g',
+    },
+    matchType: 'ai-local',
+    isEstimated: false,
+    data_quality: 'high',
+    notes: '本地数据库匹配',
+  };
+}
+
+/**
+ * 格式化本地匹配结果
+ */
+function formatResults(results) {
+  return results.map(r => ({
+    name: r.name,
+    confidence: r.confidence,
+    nutrition: {
+      calories: r.nutrition.calories,
+      protein: r.nutrition.protein,
+      carbs: r.nutrition.carbs,
+      fat: r.nutrition.fat,
+      fiber: r.nutrition.fiber,
+      sodium: r.nutrition.sodium || 0,
+      potassium: r.nutrition.potassium || 0,
+      calcium: r.nutrition.calcium || 0,
+      iron: r.nutrition.iron || 0,
+      vitaminA: r.nutrition.vitaminA || 0,
+      vitaminC: r.nutrition.vitaminC || 0,
+      unit: '100g',
+    },
+    matchType: r.matchType,
+    isEstimated: r.nutrition.isEstimated || false,
+  }));
+}
+
+/**
  * POST /api/food/recognize-text
- * 文本识别食物（核心接口）
- * 
- * 请求体：{ text: "米饭 红烧肉 炒青菜" }
+ * 文本识别（纯本地，不消耗token）
  */
 router.post('/recognize-text', (req, res) => {
   try {
     const { text } = req.body;
-
     if (!text) {
       return res.status(400).json({ error: '请提供食物描述' });
     }
 
+    // 检查缓存
+    const cacheKey = `text:${text}`;
+    if (searchCache.has(cacheKey)) {
+      return res.json(searchCache.get(cacheKey));
+    }
+
     const results = smartMatch.smartRecognize(text);
-    
-    res.json({
+    const response = {
       success: true,
       useAI: false,
       aiType: 'smart-match',
-      foods: results.map(r => ({
-        name: r.name,
-        confidence: r.confidence,
-        nutrition: {
-          calories: r.nutrition.calories,
-          protein: r.nutrition.protein,
-          carbs: r.nutrition.carbs,
-          fat: r.nutrition.fat,
-          fiber: r.nutrition.fiber,
-          unit: '100g',
-        },
-        matchType: r.matchType,
-        isEstimated: r.nutrition.isEstimated || false,
-      })),
-      message: `智能匹配成功`,
-    });
+      foods: formatResults(results),
+      message: '本地匹配成功',
+      savedTokens: true,
+    };
 
+    searchCache.set(cacheKey, response);
+    setTimeout(() => searchCache.delete(cacheKey), CACHE_DURATION);
+
+    res.json(response);
   } catch (error) {
     console.error('文本识别错误:', error);
-    res.status(500).json({ error: '识别失败，请重试' });
+    res.status(500).json({ error: '识别失败' });
   }
 });
 
 /**
  * GET /api/food/suggest
- * 获取食物建议（自动补全）
- * 
- * 参数：?q=米
+ * 自动补全（纯本地）
  */
 router.get('/suggest', (req, res) => {
   try {
     const { q } = req.query;
-
     if (!q || q.length < 1) {
       return res.json({ success: true, suggestions: [] });
     }
-
     const suggestions = smartMatch.getSuggestions(q);
-    
-    res.json({
-      success: true,
-      suggestions,
-    });
-
+    res.json({ success: true, suggestions });
   } catch (error) {
-    console.error('获取建议失败:', error);
     res.status(500).json({ error: '获取失败' });
   }
 });
 
 /**
- * POST /api/food/recognize-direct
- * 接收小艺直连识别的结果
- * 
- * 请求体：{ foods: [{name: "米饭", confidence: 0.95}] }
- */
-router.post('/recognize-direct', (req, res) => {
-  try {
-    const { foods } = req.body;
-
-    if (!foods || !Array.isArray(foods)) {
-      return res.status(400).json({ error: '请提供识别结果' });
-    }
-
-    // 匹配营养数据
-    const results = foods.map(item => {
-      const nutrition = findNutrition(item.name || item.keyword);
-      return {
-        name: nutrition.name,
-        confidence: item.confidence || item.score || 0.85,
-        nutrition: {
-          calories: nutrition.calories,
-          protein: nutrition.protein,
-          carbs: nutrition.carbs,
-          fat: nutrition.fat,
-          unit: nutrition.unit,
-        },
-        isEstimated: nutrition.isEstimated || false,
-      };
-    });
-
-    res.json({
-      success: true,
-      useAI: true,
-      aiType: 'xiaoyi-direct',
-      foods: results,
-      message: '小艺直连识别成功',
-    });
-
-  } catch (error) {
-    console.error('处理直连结果错误:', error);
-    res.status(500).json({ error: '处理失败，请重试' });
-  }
-});
-
-/**
  * GET /api/food/search
- * 搜索食物营养信息
- * 
- * 参数：?name=米饭
+ * 搜索食物（纯本地）
  */
 router.get('/search', (req, res) => {
   const { name } = req.query;
-
   if (!name) {
     return res.status(400).json({ error: '请提供食物名称' });
   }
-
   const nutrition = findNutrition(name);
-  res.json({
-    success: true,
-    food: nutrition,
-  });
+  res.json({ success: true, food: nutrition });
 });
 
 /**
  * GET /api/food/list
- * 获取所有食物列表
+ * 获取所有食物（纯本地）
  */
 router.get('/list', (req, res) => {
   const foods = getAllFoods();
-
-  res.json({
-    success: true,
-    total: foods.length,
-    foods,
-  });
+  res.json({ success: true, total: foods.length, foods });
 });
 
 /**
  * GET /api/food/categories
- * 获取所有食物类别
+ * 获取类别（纯本地）
  */
 router.get('/categories', (req, res) => {
   const categories = getCategories();
-
-  res.json({
-    success: true,
-    categories,
-  });
+  res.json({ success: true, categories });
 });
 
 /**
  * GET /api/food/barcode
- * 条形码查询产品信息
- * 
- * 参数：?code=6901234567890
+ * 条形码查询（纯本地）
  */
-router.get('/barcode', async (req, res) => {
+router.get('/barcode', (req, res) => {
   const { code } = req.query;
-
   if (!code) {
     return res.status(400).json({ error: '请提供条形码' });
   }
 
-  // 导入条形码数据库
   const barcodeDB = require('../data/barcode-db');
-  let product = barcodeDB.findByBarcode(code);
+  const product = barcodeDB.findByBarcode(code);
   
   if (product) {
-    // 本地数据库找到
     res.json({
       success: true,
       source: 'local',
-      product: {
-        ...product,
-        barcode: code,
-        unit: '100g',
-      },
+      product: { ...product, barcode: code, unit: '100g' },
+      savedTokens: true,
     });
   } else {
-    // 本地没有，尝试外部API查询
-    try {
-      const externalProduct = await queryExternalBarcodeAPI(code);
-      
-      if (externalProduct) {
-        res.json({
-          success: true,
-          source: 'external',
-          product: externalProduct,
-        });
-      } else {
-        // 外部也没有，返回手动添加提示
-        res.json({
-          success: false,
-          error: '未找到该条形码对应的产品',
-          barcode: code,
-          message: `当前数据库包含 ${barcodeDB.getCount()} 种产品，请手动添加`,
-          needManualInput: true,
-        });
-      }
-    } catch (error) {
-      console.error('外部API查询失败:', error.message);
-      res.json({
-        success: false,
-        error: '查询失败，请手动添加',
-        barcode: code,
-        needManualInput: true,
-      });
-    }
-  }
-});
-
-/**
- * 查询外部条码API
- * 可以接入多个数据源
- */
-async function queryExternalBarcodeAPI(code) {
-  // 方案1：使用开放条码数据库（如 upcitemdb.com）
-  // 注意：这些API可能有调用限制
-  
-  const axios = require('axios');
-  
-  // 尝试多个数据源
-  const sources = [
-    // 数据源1：UPC Item DB（免费，有限制）
-    {
-      name: 'upcitemdb',
-      url: `https://api.upcitemdb.com/prod/trial/lookup`,
-      method: 'GET',
-      params: { upc: code },
-      parser: (data) => {
-        if (data && data.items && data.items.length > 0) {
-          const item = data.items[0];
-          return {
-            name: item.title || item.description || '未知产品',
-            barcode: code,
-            calories: 0, // 外部API通常没有营养数据
-            protein: 0,
-            carbs: 0,
-            fat: 0,
-            brand: item.brand || '',
-            unit: '100g',
-            source: 'upcitemdb',
-          };
-        }
-        return null;
-      }
-    },
-    // 可以添加更多数据源...
-  ];
-  
-  for (const source of sources) {
-    try {
-      const response = await axios({
-        method: source.method,
-        url: source.url,
-        params: source.params,
-        timeout: 5000,
-      });
-      
-      const product = source.parser(response.data);
-      if (product) {
-        console.log(`从 ${source.name} 查询到产品:`, product.name);
-        return product;
-      }
-    } catch (error) {
-      console.log(`${source.name} 查询失败:`, error.message);
-      continue;
-    }
-  }
-  
-  return null;
-}
-
-/**
- * POST /api/food/set-api-key
- * 设置百炼API Key
- * 
- * 请求体：{ apiKey: "sk-xxx" }
- */
-router.post('/set-api-key', (req, res) => {
-  try {
-    const { apiKey } = req.body;
-
-    if (!apiKey) {
-      return res.status(400).json({ error: '请提供API Key' });
-    }
-
-    // 设置API Key
-    process.env.BAILIAN_API_KEY = apiKey;
-    
-    // 重新加载百炼AI服务
-    try {
-      const bailian = require('../services/bailian-ai');
-      bailian.setApiKey(apiKey);
-      aiService = bailian;
-      aiType = 'bailian';
-      
-      res.json({
-        success: true,
-        message: '百炼API Key设置成功',
-        aiType: 'bailian',
-      });
-    } catch (e) {
-      res.status(500).json({ error: '加载百炼AI服务失败' });
-    }
-
-  } catch (error) {
-    console.error('设置API Key失败:', error);
-    res.status(500).json({ error: '设置失败' });
+    res.json({
+      success: false,
+      error: '未找到该条形码',
+      barcode: code,
+      needManualInput: true,
+    });
   }
 });
 
 /**
  * GET /api/food/ai-status
- * 获取当前AI服务状态
+ * AI状态
  */
 router.get('/ai-status', (req, res) => {
   res.json({
     success: true,
     aiType,
     hasApiKey: !!process.env.BAILIAN_API_KEY,
-    message: aiType === 'bailian' ? '百炼AI已配置' : 
-             aiType === 'xiaoyi' ? '使用小艺AI' : 
-             '使用本地智能匹配',
+    message: aiType === 'bailian' ? '百炼AI已配置' : '使用本地匹配',
   });
+});
+
+/**
+ * POST /api/food/set-api-key
+ * 设置API Key
+ */
+router.post('/set-api-key', (req, res) => {
+  try {
+    const { apiKey } = req.body;
+    if (!apiKey) {
+      return res.status(400).json({ error: '请提供API Key' });
+    }
+
+    process.env.BAILIAN_API_KEY = apiKey;
+    
+    try {
+      const bailian = require('../services/bailian-ai');
+      bailian.setApiKey(apiKey);
+      aiService = bailian;
+      aiType = 'bailian';
+      res.json({ success: true, message: 'API Key设置成功', aiType: 'bailian' });
+    } catch (e) {
+      res.status(500).json({ error: '加载AI服务失败' });
+    }
+  } catch (error) {
+    res.status(500).json({ error: '设置失败' });
+  }
 });
 
 module.exports = router;

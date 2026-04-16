@@ -182,10 +182,10 @@ router.post('/friend/add', (req, res) => {
     return res.status(400).json({ error: '不能添加自己为好友' });
   }
   
-  // 检查好友是否存在
+  // 检查好友是否存在（必须是真实注册用户）
   const friend = users.get(friendId);
   if (!friend) {
-    return res.status(404).json({ error: '用户不存在' });
+    return res.status(404).json({ error: '用户不存在，请确认ID正确' });
   }
   
   // 获取用户的好友列表
@@ -196,7 +196,7 @@ router.post('/friend/add', (req, res) => {
     return res.status(400).json({ error: '已经是好友了' });
   }
   
-  // 添加好友
+  // 添加好友（使用真实用户数据）
   userFriends.push({
     id: friendId,
     name: friend.name,
@@ -205,6 +205,19 @@ router.post('/friend/add', (req, res) => {
   });
   
   friends.set(userId, userFriends);
+  
+  // 双向添加（对方也添加自己）
+  const friendFriends = friends.get(friendId) || [];
+  const user = users.get(userId);
+  if (user && !friendFriends.find(f => f.id === userId)) {
+    friendFriends.push({
+      id: userId,
+      name: user.name,
+      avatar: user.avatar,
+      addedAt: new Date().toISOString(),
+    });
+    friends.set(friendId, friendFriends);
+  }
   
   res.json({
     success: true,
@@ -217,14 +230,30 @@ router.post('/friend/add', (req, res) => {
   });
 });
 
-// 获取好友列表
+// 获取好友列表（包含实时数据）
 router.get('/friends/:userId', (req, res) => {
   const { userId } = req.params;
   const userFriends = friends.get(userId) || [];
+  const today = new Date().toDateString();
+  
+  // 获取每个好友的实时数据
+  const friendsWithData = userFriends.map(friend => {
+    const friendUser = users.get(friend.id);
+    const key = `${friend.id}_${today}`;
+    const todayData = dailyRecords.get(key);
+    
+    return {
+      ...friend,
+      name: friendUser?.name || friend.name,
+      avatar: friendUser?.avatar || friend.avatar,
+      todayCalories: todayData?.intake?.calories || 0,
+      lastActive: friendUser?.lastLoginAt || friend.addedAt,
+    };
+  });
   
   res.json({
     success: true,
-    friends: userFriends,
+    friends: friendsWithData,
   });
 });
 
