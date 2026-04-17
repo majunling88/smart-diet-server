@@ -424,6 +424,26 @@ router.get('/categories', (req, res) => {
 });
 
 /**
+ * GET /api/food/category/:name
+ * 获取某个品类的食物列表
+ */
+router.get('/category/:name', (req, res) => {
+  const { name } = req.params;
+  const foods = getFoodsByCategory(name);
+  
+  // 返回前10个最常见食物作为示例
+  const topFoods = foods.slice(0, 10);
+  
+  res.json({ 
+    success: true, 
+    category: name,
+    total: foods.length,
+    topFoods,
+    allFoods: foods 
+  });
+});
+
+/**
  * GET /api/food/barcode
  * 条形码查询（纯本地）
  */
